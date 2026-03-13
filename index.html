@@ -108,13 +108,13 @@ animation:blackFlash 0.2s infinite;
 /* MELT */
 
 .melt{
-animation:melt 1s infinite;
+animation:melt 0.01s infinite;
 }
 
 @keyframes melt{
 0%{transform:skewX(0deg)}
-50%{transform:skewX(4deg)}
-100%{transform:skewX(-4deg)}
+50%{transform:skewX(1deg)}
+100%{transform:skewX(-1deg)}
 }
 
 </style>
@@ -184,7 +184,7 @@ setTimeout(()=>{
 img.classList.add("melt")
 document.getElementById("vn2").play()
 
-},00000)
+},10000)
 
 },1000)
 
@@ -252,7 +252,7 @@ document.getElementById("text").textContent="558762"
 
 setTimeout(()=>{
 document.getElementById("vn1").play()
-},60000)
+},55000)
 
 /* 1:02 GLITCH EVENT */
 
