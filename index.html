@@ -16,7 +16,7 @@ filter:blur(1.3px);
 image-rendering:pixelated;
 }
 
-/* VHS */
+/* VHS overlay */
 
 #vhs{
 position:fixed;
@@ -105,18 +105,6 @@ animation:blackFlash 0.08s infinite;
 100%{background:black}
 }
 
-/* MELT */
-
-.melt{
-animation:melt 0.2s infinite;
-}
-
-@keyframes melt{
-0%{transform:skewX(0deg)}
-50%{transform:skewX(4deg)}
-100%{transform:skewX(-4deg)}
-}
-
 </style>
 </head>
 
@@ -160,33 +148,64 @@ document.body.innerHTML=""
 
 let screen=document.createElement("div")
 screen.style.position="fixed"
+screen.style.top="0"
+screen.style.left="0"
 screen.style.width="100%"
 screen.style.height="100%"
 screen.style.background="black"
 screen.style.display="flex"
 screen.style.alignItems="center"
 screen.style.justifyContent="center"
+screen.style.flexDirection="column"
 
 document.body.appendChild(screen)
 
+/* AUDIO */
+
+let vn2=document.createElement("audio")
+vn2.src="VN2.mp3"
+vn2.loop=true
+vn2.autoplay=true
+screen.appendChild(vn2)
+
+/* IMAGE */
+
 let img=document.createElement("img")
-img.style.maxWidth="80%"
+img.style.maxWidth="70%"
+img.style.maxHeight="70%"
+img.style.objectFit="contain"
+
 screen.appendChild(img)
 
 img.src="Image1.png"
+
+/* Image switch */
 
 setTimeout(()=>{
 
 img.src="Image2.png"
 
+/* stretch after 10s */
+
 setTimeout(()=>{
 
-img.classList.add("melt")
-document.getElementById("vn2").play()
+let scale=1
+
+setInterval(()=>{
+scale+=0.1
+img.style.transform="scaleY("+scale+")"
+},100)
 
 },10000)
 
 },1000)
+
+/* reset after 2 minutes */
+
+setTimeout(()=>{
+localStorage.removeItem("crashed")
+location.reload()
+},120000)
 
 }
 
@@ -248,13 +267,13 @@ b.textContent="558762"
 
 document.getElementById("text").textContent="558762"
 
-/* 1 MINUTE VN1 */
+/* VN1 after 1 minute */
 
 setTimeout(()=>{
 document.getElementById("vn1").play()
 },60000)
 
-/* 1:02 GLITCH EVENT */
+/* glitch after 1:02 */
 
 setTimeout(()=>{
 
@@ -266,14 +285,11 @@ setInterval(()=>{
 vn.currentTime=0
 },200)
 
-/* CRASH AFTER 20s */
+/* crash */
 
 setTimeout(()=>{
-
 localStorage.setItem("crashed","true")
-
 while(true){}
-
 },20000)
 
 },62000)
