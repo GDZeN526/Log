@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Log Decoder</title>
+
+<style>
+
+body{
+margin:0;
+background:black;
+color:white;
+font-family:monospace;
+overflow:hidden;
+filter:blur(1.2px);
+image-rendering:pixelated;
+}
+
+/* VHS overlay */
+
+#vhs{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+background:repeating-linear-gradient(
+0deg,
+rgba(255,255,255,0.05) 0px,
+rgba(255,255,255,0.05) 1px,
+transparent 2px,
+transparent 4px
+);
+}
+
+/* UI */
+
+#ui{
+position:absolute;
+top:20px;
+left:20px;
+z-index:5;
+}
+
+button{
+background:#111;
+color:white;
+border:1px solid #444;
+margin:6px;
+padding:6px 12px;
+font-family:monospace;
+cursor:pointer;
+}
+
+/* text */
+
+#text{
+position:absolute;
+top:140px;
+left:20px;
+width:70%;
+font-size:12px;
+line-height:18px;
+white-space:pre-wrap;
+transform:scaleY(1.5);
+transform-origin:top left;
+z-index:5;
+}
+
+/* secret button */
+
+#secret{
+position:fixed;
+bottom:30px;
+right:30px;
+width:200px;
+height:80px;
+background:#111;
+border:1px solid #777;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+transform:scaleY(2);
+z-index:10;
+}
+
+#secret span{
+animation:flicker 0.2s infinite;
+}
+
+@keyframes flicker{
+0%{opacity:1}
+50%{opacity:0.2}
+100%{opacity:1}
+}
+
+/* black flicker */
+
+.blackFlicker{
+animation:blackFlash 0.08s infinite;
+}
+
+@keyframes blackFlash{
+0%{background:black}
+50%{background:#050505}
+100%{background:black}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="vhs"></div>
+
+<audio id="bgm1" src="BGM1.mp3" autoplay loop></audio>
+<audio id="bgm2" src="BGM2.mp3"></audio>
+<audio id="vn1" src="VN1.mp3"></audio>
+<audio id="vn2" src="VN2.mp3" loop></audio>
+
+<div id="ui">
+
+<button onclick="setMode('encode')">ENCODE</button>
+<button onclick="setMode('decode')">DECODE</button>
+
+<br>
+
+<button onclick="showLog(1)">LOG #1</button>
+<button onclick="showLog(2)">LOG #2</button>
+<button onclick="showLog(3)">LOG #3</button>
+
+</div>
+
+<div id="text"></div>
+
+<div id="secret"><span>CODE</span></div>
+
+<script>
+
+/* run revisit AFTER load */
+
+window.onload=function(){
+if(localStorage.getItem("crashed")){
+returnSequence()
+}
+}
+
+/* return sequence */
+
+function returnSequence(){
+
+document.body.innerHTML=""
+
+let screen=document.createElement("div")
+screen.style.position="fixed"
+screen.style.top="0"
+screen.style.left="0"
+screen.style.width="100%"
+screen.style.height="100%"
+screen.style.background="black"
+screen.style.display="flex"
+screen.style.alignItems="center"
+screen.style.justifyContent="center"
+screen.style.flexDirection="column"
+
+document.body.appendChild(screen)
+
+/* audio */
+
+let vn2=document.createElement("audio")
+vn2.src="VN2.mp3"
+vn2.loop=true
+vn2.autoplay=true
+screen.appendChild(vn2)
+
+/* image */
+
+let img=document.createElement("img")
+img.style.maxWidth="70%"
+img.style.maxHeight="70%"
+img.style.objectFit="contain"
+
+screen.appendChild(img)
+
+img.src="Image1.png"
+
+/* switch image */
+
+setTimeout(()=>{
+
+img.src="Image2.png"
+
+/* stretch after 10s */
+
+setTimeout(()=>{
+
+let scale=1
+
+setInterval(()=>{
+scale+=0.1
+img.style.transform="scaleY("+scale+")"
+},120)
+
+},10000)
+
+},1000)
+
+/* reset after 2 min */
+
+setTimeout(()=>{
+localStorage.removeItem("crashed")
+location.reload()
+},120000)
+
+}
+
+/* logs */
+
+let mode="encode"
+let log=1
+
+const encoded={
+1:`76 111 103 32 35 49 10 73 32 116 104 105 110 107 32 115 111 109 101 111 110 101 44 32 111 114 32 115 111 109 101 116 104 105 110 103 32 102 111 108 108 111 119 115 32 109 101 32 104 111 109 101 44 32 73 32 100 111 110 39 116 32 107 110 111 119 32 119 104 97 116 32 105 116 32 105 115 44 32 98 117 116 32 73 39 109 32 115 99 97 114 101 100`,
+
+2:`TG9nICMyCkkga25ldyBpdCwgSSBmdWNraW5nIGtuZXcgaXQuIEl0J3MgaGVyZSwgSSdtIG5vdyBpbiBteSByb29tLCBzY2FyZWQsIHdpdGggbm8gcHJvdGVjdGlvbiwgSSBkb24ndCBrbm93IGlmIGl0IGNhbiB1bmxvY2sgYSBkb29yLCBidXQgZm9yIG5vdywgSSdtIG5vdCBzYWZlLiBKdXN0IGluIGNhc2Ugc29tZXRoaW5nIGhhcHBlbnMgSSdtIGdvbm5hIGVuY29kZSB0aGlzIG1lc3NhZ2Uu`,
+
+3:`Lg#
+a' ev,Icntd ntig tsbe as n ooecm ohl e tsbe AS htde twn,Idnthv NTIGo 3Icntlae  a' oayhn.I' endy,adn n oet epm,i' enDY.Wa osi at  o' aeAYHN.`
+}
+
+const decoded={
+1:`Log #1
+I think someone, or something follows me home, I don't know what it is, but I'm scared`,
+
+2:`Log #2
+I knew it, I fucking knew it. It's here, I'm now in my room, scared, with no protection, I don't know if it can unlock a door, but for now, I'm not safe. Just in case something happens I'm gonna encode this message.`,
+
+3:`Log #3
+I can't leave, I can't do anything. It's been days, and no one come to help me, it's been DAYS. What does it want, I don't have ANYTHING.`
+}
+
+function render(){
+document.getElementById("text").textContent=
+(mode=="encode"?encoded[log]:decoded[log])
+}
+
+function setMode(m){
+mode=m
+render()
+}
+
+function showLog(n){
+log=n
+render()
+}
+
+render()
+
+/* secret button */
+
+document.getElementById("secret").onclick=function(){
+
+document.getElementById("bgm1").pause()
+document.getElementById("bgm2").play()
+
+document.body.style.background="white"
+document.body.style.color="black"
+
+document.querySelectorAll("button").forEach(b=>{
+b.textContent="558762"
+})
+
+document.getElementById("text").textContent="558762"
+
+/* VN1 after 1 minute */
+
+setTimeout(()=>{
+document.getElementById("vn1").play()
+},60000)
+
+/* glitch at 1:02 */
+
+setTimeout(()=>{
+
+document.body.classList.add("blackFlicker")
+
+let vn=document.getElementById("vn1")
+
+setInterval(()=>{
+vn.currentTime=0
+},200)
+
+/* crash */
+
+setTimeout(()=>{
+localStorage.setItem("crashed","true")
+while(true){}
+},20000)
+
+},62000)
+
+}
+
+</script>
+
+</body>
+</html>
